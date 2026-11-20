@@ -27,14 +27,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/godot_dl"
+          mkdir -p "$RUNNER_TEMP/godot_dl" "$RUNNER_TEMP/godot_bin"
 
           echo "Downloading Godot ${GODOT_VERSION} macOS Universal..."
           curl -fSL --retry 3 --retry-delay 3 -o "$RUNNER_TEMP/godot_dl/godot_macos.zip" "${GODOT_MACOS_URL}"
-          unzip -q "$RUNNER_TEMP/godot_dl/godot_macos.zip" -d "$RUNNER_TEMP/godot_dl"
+          unzip -q "$RUNNER_TEMP/godot_dl/godot_macos.zip" -d "$RUNNER_TEMP/godot_bin"
 
-          GODOT_APP="$(find "$RUNNER_TEMP/godot_dl" -maxdepth 2 -name "*.app" | head -n 1)"
+          GODOT_APP="$(find "$RUNNER_TEMP/godot_bin" -maxdepth 2 -name "*.app" | head -n 1)"
           GODOT_BIN="${GODOT_APP}/Contents/MacOS/Godot"
+          xattr -cr "${GODOT_APP}" || true
           chmod +x "${GODOT_BIN}"
           "${GODOT_BIN}" --version
           echo "GODOT_BIN=${GODOT_BIN}" >> "$GITHUB_ENV"
@@ -47,7 +48,10 @@ jobs:
           mkdir -p "${TEMPLATES_DEST}"
           mv "$RUNNER_TEMP/godot_dl/tpz_unpacked/templates/"* "${TEMPLATES_DEST}/"
           ls -lh "${TEMPLATES_DEST}/ios.zip"
+
+          # Clean temporary zip/tpz archives while keeping $RUNNER_TEMP/godot_bin intact
           rm -rf "$RUNNER_TEMP/godot_dl"
+          test -x "${GODOT_BIN}"
 
       - name: Import Project Assets & Run Headless Boot Sanity Check
         shell: bash
@@ -60,15 +64,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p builds/ios
-          "${GODOT_BIN}" --headless --path client --export-release "iOS" "../builds/ios/PhantomCourtOnline.xcodeproj"
-          ls -la builds/ios
+          mkdir -p "${GITHUB_WORKSPACE}/builds/ios"
+          "${GODOT_BIN}" --headless --path client --export-release "iOS" "${GITHUB_WORKSPACE}/builds/ios/PhantomCourtOnline.xcodeproj"
+          ls -la "${GITHUB_WORKSPACE}/builds/ios"
 
       - name: Compile arm64 iOS App via xcodebuild (Unsigned)
         shell: bash
         run: |
           set -euo pipefail
-          XCODEPROJ_PATH="$(find builds/ios -maxdepth 2 -name "*.xcodeproj" | head -n 1)"
+          XCODEPROJ_PATH="$(find "${GITHUB_WORKSPACE}/builds/ios" -maxdepth 2 -name "*.xcodeproj" | head -n 1)"
           if [ -z "${XCODEPROJ_PATH}" ]; then
             echo "ERROR: No .xcodeproj generated under builds/ios" >&2
             exit 1
@@ -83,20 +87,21 @@ jobs:
             -scheme "${SCHEME_NAME}" \
             -configuration Release \
             -sdk iphoneos \
-            -arch arm64 \
-            -derivedDataPath builds/ios/DerivedData \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath "${GITHUB_WORKSPACE}/builds/ios/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
             DEVELOPMENT_TEAM="" \
-            ENABLE_BITCODE=NO \
+            PROVISIONING_PROFILE_SPECIFIER="" \
             build
 
       - name: Package Payload into Unsigned .ipa & Verify Archive
         shell: bash
         run: |
           set -euo pipefail
-          APP_BUNDLE="$(find builds/ios/DerivedData/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -n 1)"
+          APP_BUNDLE="$(find "${GITHUB_WORKSPACE}/builds/ios/DerivedData/Build/Products/Release-iphoneos" -maxdepth 1 -name "*.app" | head -n 1)"
           if [ -z "${APP_BUNDLE}" ]; then
             echo "ERROR: Compiled .app bundle not found in DerivedData!" >&2
             exit 1
@@ -119,10 +124,9 @@ jobs:
           ls -lh "${IPA_OUT}"
           unzip -l "${IPA_OUT}" | head -n 40
 
-          # Also zip the exported Xcode project (excluding DerivedData) for optional local Xcode signing
           XCODE_ZIP="${GITHUB_WORKSPACE}/builds/ios/PhantomCourtOnline-xcodeproj.zip"
           (
-            cd builds/ios
+            cd "${GITHUB_WORKSPACE}/builds/ios"
             zip -r -y -q "${XCODE_ZIP}" . -x "DerivedData/*" "*.ipa" "*.zip"
           )
           ls -lh "${XCODE_ZIP}"
