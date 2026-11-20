@@ -1,0 +1,144 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  GODOT_VERSION: "4.7.2-stable"
+  GODOT_TEMPLATE_DIR_VERSION: "4.7.2.stable"
+  GODOT_MACOS_URL: "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_macos.universal.zip"
+  GODOT_TEMPLATES_URL: "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz"
+
+jobs:
+  build-ios-ipa:
+    name: Export Godot 4.7.2 & Build Unsigned iOS .ipa
+    runs-on: macos-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2-stable (macOS Universal) & Export Templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/godot_dl"
+
+          echo "Downloading Godot ${GODOT_VERSION} macOS Universal..."
+          curl -fSL --retry 3 --retry-delay 3 -o "$RUNNER_TEMP/godot_dl/godot_macos.zip" "${GODOT_MACOS_URL}"
+          unzip -q "$RUNNER_TEMP/godot_dl/godot_macos.zip" -d "$RUNNER_TEMP/godot_dl"
+
+          GODOT_APP="$(find "$RUNNER_TEMP/godot_dl" -maxdepth 2 -name "*.app" | head -n 1)"
+          GODOT_BIN="${GODOT_APP}/Contents/MacOS/Godot"
+          chmod +x "${GODOT_BIN}"
+          "${GODOT_BIN}" --version
+          echo "GODOT_BIN=${GODOT_BIN}" >> "$GITHUB_ENV"
+
+          echo "Downloading Godot ${GODOT_VERSION} Export Templates..."
+          curl -fSL --retry 3 --retry-delay 3 -o "$RUNNER_TEMP/godot_dl/templates.tpz" "${GODOT_TEMPLATES_URL}"
+          unzip -q "$RUNNER_TEMP/godot_dl/templates.tpz" -d "$RUNNER_TEMP/godot_dl/tpz_unpacked"
+
+          TEMPLATES_DEST="$HOME/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_DIR_VERSION}"
+          mkdir -p "${TEMPLATES_DEST}"
+          mv "$RUNNER_TEMP/godot_dl/tpz_unpacked/templates/"* "${TEMPLATES_DEST}/"
+          ls -lh "${TEMPLATES_DEST}/ios.zip"
+          rm -rf "$RUNNER_TEMP/godot_dl"
+
+      - name: Import Project Assets & Run Headless Boot Sanity Check
+        shell: bash
+        run: |
+          set -euo pipefail
+          "${GODOT_BIN}" --headless --import --path client
+          "${GODOT_BIN}" --headless --path client --quit
+
+      - name: Export Godot iOS Xcode Project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds/ios
+          "${GODOT_BIN}" --headless --path client --export-release "iOS" "../builds/ios/PhantomCourtOnline.xcodeproj"
+          ls -la builds/ios
+
+      - name: Compile arm64 iOS App via xcodebuild (Unsigned)
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODEPROJ_PATH="$(find builds/ios -maxdepth 2 -name "*.xcodeproj" | head -n 1)"
+          if [ -z "${XCODEPROJ_PATH}" ]; then
+            echo "ERROR: No .xcodeproj generated under builds/ios" >&2
+            exit 1
+          fi
+          echo "Found Xcode project: ${XCODEPROJ_PATH}"
+
+          SCHEME_NAME="$(xcodebuild -list -json -project "${XCODEPROJ_PATH}" | python3 -c 'import sys, json; d = json.load(sys.stdin); print(d["project"]["schemes"][0])')"
+          echo "Building scheme: ${SCHEME_NAME}"
+
+          xcodebuild \
+            -project "${XCODEPROJ_PATH}" \
+            -scheme "${SCHEME_NAME}" \
+            -configuration Release \
+            -sdk iphoneos \
+            -arch arm64 \
+            -derivedDataPath builds/ios/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            ENABLE_BITCODE=NO \
+            build
+
+      - name: Package Payload into Unsigned .ipa & Verify Archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_BUNDLE="$(find builds/ios/DerivedData/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -n 1)"
+          if [ -z "${APP_BUNDLE}" ]; then
+            echo "ERROR: Compiled .app bundle not found in DerivedData!" >&2
+            exit 1
+          fi
+          echo "Found compiled .app bundle: ${APP_BUNDLE}"
+
+          STAGE_DIR="$RUNNER_TEMP/ipa_stage"
+          rm -rf "${STAGE_DIR}"
+          mkdir -p "${STAGE_DIR}/Payload"
+          cp -R "${APP_BUNDLE}" "${STAGE_DIR}/Payload/PhantomCourtOnline.app"
+
+          IPA_OUT="${GITHUB_WORKSPACE}/builds/ios/PhantomCourtOnline-iOS-unsigned.ipa"
+          rm -f "${IPA_OUT}"
+          (
+            cd "${STAGE_DIR}"
+            zip -r -y -q "${IPA_OUT}" Payload
+          )
+
+          echo "=== Verifying IPA Archive ==="
+          ls -lh "${IPA_OUT}"
+          unzip -l "${IPA_OUT}" | head -n 40
+
+          # Also zip the exported Xcode project (excluding DerivedData) for optional local Xcode signing
+          XCODE_ZIP="${GITHUB_WORKSPACE}/builds/ios/PhantomCourtOnline-xcodeproj.zip"
+          (
+            cd builds/ios
+            zip -r -y -q "${XCODE_ZIP}" . -x "DerivedData/*" "*.ipa" "*.zip"
+          )
+          ls -lh "${XCODE_ZIP}"
+
+      - name: Upload iOS .ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhantomCourtOnline-iOS-ipa
+          path: builds/ios/PhantomCourtOnline-iOS-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Exported Xcode Project Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhantomCourtOnline-iOS-xcodeproj
+          path: builds/ios/PhantomCourtOnline-xcodeproj.zip
+          if-no-files-found: warn
+          retention-days: 14

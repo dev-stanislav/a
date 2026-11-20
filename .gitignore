@@ -1,0 +1,21 @@
+# Toolchain & Local Runtime Artifacts
+tools/godot/
+tools/postgres/
+tools/.tmp/
+.pgdata/
+
+# Godot 4 Cache & Exports
+client/.godot/
+client/.import/
+builds/
+
+# Rust Server Build Artifacts
+server/target/
+
+# Logs & Temp Files
+*.tmp
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db

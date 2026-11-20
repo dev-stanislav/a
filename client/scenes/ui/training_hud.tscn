@@ -1,0 +1,378 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/training_hud.gd" id="1_training_hud"]
+
+[node name="TrainingHUD" type="CanvasLayer"]
+layer = 15
+script = ExtResource("1_training_hud")
+
+[node name="HUDRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ComboTutorialCard" type="PanelContainer" parent="HUDRoot"]
+layout_mode = 1
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 432.0
+offset_bottom = 228.0
+
+[node name="TutorialVBox" type="VBoxContainer" parent="HUDRoot/ComboTutorialCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TutorialHeaderLabel" type="Label" parent="HUDRoot/ComboTutorialCard/TutorialVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "SKILL DOJO // COMBO TUTORIAL"
+
+[node name="ComboSelector" type="OptionButton" parent="HUDRoot/ComboTutorialCard/TutorialVBox"]
+layout_mode = 2
+
+[node name="TutorialMoveLabel" type="Label" parent="HUDRoot/ComboTutorialCard/TutorialVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "PHANTOM DRIVE  •  UNIVERSAL"
+
+[node name="PromptChipsRow" type="HBoxContainer" parent="HUDRoot/ComboTutorialCard/TutorialVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TutorialFeedbackLabel" type="Label" parent="HUDRoot/ComboTutorialCard/TutorialVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "STEP 1 / 4 — FOLLOW PROMPT"
+
+[node name="ChallengeRow" type="HBoxContainer" parent="HUDRoot/ComboTutorialCard/TutorialVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ChallengeButton" type="Button" parent="HUDRoot/ComboTutorialCard/TutorialVBox/ChallengeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Start 30s Challenge"
+
+[node name="ChallengeTimerLabel" type="Label" parent="HUDRoot/ComboTutorialCard/TutorialVBox/ChallengeRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.64, 0.74, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "30.0s"
+
+[node name="ChallengeCountLabel" type="Label" parent="HUDRoot/ComboTutorialCard/TutorialVBox/ChallengeRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 / 3"
+
+[node name="ChallengeGradeBadge" type="PanelContainer" parent="HUDRoot/ComboTutorialCard/TutorialVBox/ChallengeRow"]
+layout_mode = 2
+
+[node name="ChallengeGradeLabel" type="Label" parent="HUDRoot/ComboTutorialCard/TutorialVBox/ChallengeRow/ChallengeGradeBadge"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "--"
+horizontal_alignment = 1
+
+[node name="InputHistoryPanel" type="PanelContainer" parent="HUDRoot"]
+layout_mode = 1
+offset_left = 18.0
+offset_top = 240.0
+offset_right = 282.0
+offset_bottom = 698.0
+
+[node name="HistoryVBox" type="VBoxContainer" parent="HUDRoot/InputHistoryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HistoryHeaderRow" type="HBoxContainer" parent="HUDRoot/InputHistoryPanel/HistoryVBox"]
+layout_mode = 2
+
+[node name="HistoryTitleLabel" type="Label" parent="HUDRoot/InputHistoryPanel/HistoryVBox/HistoryHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "INPUT HISTORY"
+
+[node name="HistoryCapLabel" type="Label" parent="HUDRoot/InputHistoryPanel/HistoryVBox/HistoryHeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.64, 0.74, 0.88, 1)
+theme_override_font_sizes/font_size = 11
+text = "LAST 16"
+
+[node name="InputHistoryScroll" type="ScrollContainer" parent="HUDRoot/InputHistoryPanel/HistoryVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="InputHistoryList" type="VBoxContainer" parent="HUDRoot/InputHistoryPanel/HistoryVBox/InputHistoryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="TimingAnalysisPanel" type="PanelContainer" parent="HUDRoot"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -215.0
+offset_top = -128.0
+offset_right = 215.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="TimingVBox" type="VBoxContainer" parent="HUDRoot/TimingAnalysisPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TimingHeaderLabel" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "TIMING ANALYSIS"
+horizontal_alignment = 1
+
+[node name="TimingBarTrack" type="Control" parent="HUDRoot/TimingAnalysisPanel/TimingVBox"]
+custom_minimum_size = Vector2(390, 22)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="EarlyBand" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.24
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.95, 0.58, 0.14, 0.8)
+
+[node name="GoodLeftBand" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.24
+anchor_right = 0.41
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.2, 0.68, 0.95, 0.85)
+
+[node name="PerfectBand" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.41
+anchor_right = 0.59
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.12, 0.92, 0.64, 0.95)
+
+[node name="GoodRightBand" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.59
+anchor_right = 0.76
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.2, 0.68, 0.95, 0.85)
+
+[node name="LateBand" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.76
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.92, 0.24, 0.42, 0.8)
+
+[node name="CenterTick" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_right = 1.0
+mouse_filter = 2
+color = Color(0.05, 0.1, 0.18, 0.75)
+
+[node name="TimingNeedle" type="ColorRect" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingBarTrack"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -3.0
+offset_right = 2.0
+offset_bottom = 3.0
+mouse_filter = 2
+
+[node name="TimingZonesRow" type="HBoxContainer" parent="HUDRoot/TimingAnalysisPanel/TimingVBox"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LblEarly" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingZonesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.98, 0.66, 0.16, 1)
+theme_override_font_sizes/font_size = 10
+text = "EARLY"
+horizontal_alignment = 1
+
+[node name="LblGoodL" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingZonesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.22, 0.74, 0.98, 1)
+theme_override_font_sizes/font_size = 10
+text = "GOOD"
+horizontal_alignment = 1
+
+[node name="LblPerfect" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingZonesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.18, 0.98, 0.68, 1)
+theme_override_font_sizes/font_size = 11
+text = "★ PERFECT ★"
+horizontal_alignment = 1
+
+[node name="LblGoodR" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingZonesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.22, 0.74, 0.98, 1)
+theme_override_font_sizes/font_size = 10
+text = "GOOD"
+horizontal_alignment = 1
+
+[node name="LblLate" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox/TimingZonesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.96, 0.28, 0.44, 1)
+theme_override_font_sizes/font_size = 10
+text = "LATE"
+horizontal_alignment = 1
+
+[node name="TimingReadoutLabel" type="Label" parent="HUDRoot/TimingAnalysisPanel/TimingVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "READY — INPUT COMBO OR SHOT"
+horizontal_alignment = 1
+
+[node name="PracticeControlsPanel" type="PanelContainer" parent="HUDRoot"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -336.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = 298.0
+grow_horizontal = 0
+
+[node name="ControlsVBox" type="VBoxContainer" parent="HUDRoot/PracticeControlsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ControlsHeaderLabel" type="Label" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "PRACTICE CONTROLS"
+
+[node name="ArchetypeHeaderLabel" type="Label" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.64, 0.74, 0.88, 1)
+theme_override_font_sizes/font_size = 11
+text = "ARCHETYPE"
+
+[node name="ArchetypeSelector" type="OptionButton" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+
+[node name="DummyHeaderLabel" type="Label" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.64, 0.74, 0.88, 1)
+theme_override_font_sizes/font_size = 11
+text = "DEFENSIVE DUMMY MODE"
+
+[node name="DummyModeSelector" type="OptionButton" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+
+[node name="ShotDrillToggleButton" type="Button" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+text = "Start 5-Spot Shot Drill"
+
+[node name="ShotDrillReadoutLabel" type="Label" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.64, 0.74, 0.88, 1)
+theme_override_font_sizes/font_size = 12
+text = "Shot Drill: Ready (5 Spots)"
+autowrap_mode = 3
+
+[node name="ActionsRow" type="HBoxContainer" parent="HUDRoot/PracticeControlsPanel/ControlsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResetPositionButton" type="Button" parent="HUDRoot/PracticeControlsPanel/ControlsVBox/ActionsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reset Position"
+
+[node name="ReturnMenuButton" type="Button" parent="HUDRoot/PracticeControlsPanel/ControlsVBox/ActionsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Main Menu"
+
+[node name="SkillMasteryCard" type="PanelContainer" parent="HUDRoot"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -336.0
+offset_top = -196.0
+offset_right = -18.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="MasteryVBox" type="VBoxContainer" parent="HUDRoot/SkillMasteryCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MasteryHeaderRow" type="HBoxContainer" parent="HUDRoot/SkillMasteryCard/MasteryVBox"]
+layout_mode = 2
+
+[node name="MasteryTitleLabel" type="Label" parent="HUDRoot/SkillMasteryCard/MasteryVBox/MasteryHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "SKILL MASTERY"
+
+[node name="MasteryRankBadge" type="PanelContainer" parent="HUDRoot/SkillMasteryCard/MasteryVBox/MasteryHeaderRow"]
+layout_mode = 2
+
+[node name="MasteryRankLabel" type="Label" parent="HUDRoot/SkillMasteryCard/MasteryVBox/MasteryHeaderRow/MasteryRankBadge"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "NOVICE"
+horizontal_alignment = 1
+
+[node name="MasteryStatsLabel" type="Label" parent="HUDRoot/SkillMasteryCard/MasteryVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "Attempts: 0  |  Completions: 0
+Perfect Rate: 0.0%  |  Best Streak: 0
+Shot Accuracy: 0.0% (0/0)
+Mastery Rank: Novice"
+autowrap_mode = 3
